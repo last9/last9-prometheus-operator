@@ -1,0 +1,94 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus-agent
+  labels:
+    managed-by: last9
+  namespace: last9-monitoring
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus-agent
+  labels:
+    managed-by: last9
+rules:
+  - apiGroups: [""]
+    resources:
+      - nodes
+      - nodes/metrics
+      - services
+      - endpoints
+      - pods
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources:
+      - configmaps
+    verbs: ["get"]
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - ingresses
+    verbs: ["get", "list", "watch"]
+  - nonResourceURLs: ["/metrics"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus-agent
+  labels:
+    managed-by: last9
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus-agent
+subjects:
+  - kind: ServiceAccount
+    name: prometheus-agent
+    namespace: default
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-agent
+  labels:
+    component: prometheus-agent
+    managed-by: last9
+spec:
+  type: ClusterIP
+  ports:
+    - name: web
+      port: 9090
+      protocol: TCP
+      targetPort: web
+  selector:
+    prometheus: prometheus-agent
+---
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: PrometheusAgent
+metadata:
+  name: prometheus-agent
+  labels:
+    app: prometheus-agent
+    managed-by: last9
+spec:
+  replicas: 1
+  serviceAccountName: prometheus-agent
+  serviceMonitorSelector:
+    matchLabels:
+      managed-by: last9
+  podMonitorSelector:
+    matchLabels:
+      managed-by: last9
+  remoteWrite:
+    - url: <levitate_remote_wrote_url>
+      basicAuth:
+        username:
+          name: levitate_secrets
+          key: username
+        password:
+          name: levitate_secrets
+          key: password
+  externalLabels:
+    cluster: <custom-label>

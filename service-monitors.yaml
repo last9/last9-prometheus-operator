@@ -1,0 +1,73 @@
+---
+# Below Service Monitor is Mandatory as it monitors the prometheus agent itself
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: prometheus-agent
+  labels:
+    managed-by: last9
+spec:
+  selector:
+    matchLabels:
+      app: prometheus-agent
+  endpoints:
+    - interval: 30s
+    - port: web
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: kube-state-metrics
+  labels:
+    app.kubernetes.io/name: kube-state-metrics
+    managed-by: last9
+spec:
+  namespaceSelector:
+    any: true
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kube-state-metrics
+  endpoints:
+    - interval: 30s
+      port: http-metrics
+      metricRelabelings:
+        - sourceLabels: [ __name__, exported_container ]
+          regex: ".*;(.+)"
+          targetLabel: container
+        - sourceLabels: [ __name__, exported_namespace ]
+          regex: ".*;(.+)"
+          targetLabel: namespace
+        - sourceLabels: [ __name__, exported_pod ]
+          regex: ".*;(.+)"
+          targetLabel: pod
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: kubelet
+  labels:
+    k8s-app: kubelet
+    managed-by: last9
+spec:
+  jobLabel: k8s-app
+  endpoints:
+    - port: https-metrics
+      scheme: https
+      interval: 30s
+      tlsConfig:
+        insecureSkipVerify: true
+      bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+    - port: https-metrics
+      scheme: https
+      path: /metrics/cadvisor
+      interval: 30s
+      honorLabels: true
+      tlsConfig:
+        insecureSkipVerify: true
+      bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+  selector:
+    matchLabels:
+      k8s-app: kubelet
+  namespaceSelector:
+    matchNames:
+      - kube-system
