@@ -54,7 +54,7 @@ kubectl apply -f ./prometheus-agent.yaml -f ./secret.yaml --kubeconfig=$KUBECONF
 To verify that the instance is up and running, run:
 
 ```shell
-kubectl get -n last9-monitoring prometheus-agent prometheus-agent -w
+kubectl get pods -n last9-monitoring
 ```
 
 ## Service Monitor Installation
