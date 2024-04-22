@@ -85,10 +85,10 @@ spec:
     - url: <levitate_remote_wrote_url>
       basicAuth:
         username:
-          name: levitate_secrets
+          name: levitate-secrets
           key: username
         password:
-          name: levitate_secrets
+          name: levitate-secrets
           key: password
   externalLabels:
-    cluster: <custom-label>
+    via_cluster: 'minikube' # Change this as per what is appropriate

@@ -1,5 +1,7 @@
 # Prometheus Agent Operator 
 
+![arch.png](arch.png)
+
 ## Requirements
 
 
@@ -12,11 +14,12 @@ Begin by installing the Custom Resource Definitions (CRDs) and the operator itse
 Execute the following commands to download the CRDs and set up the operator in the `last9-monitoring` namespace:
 
 ```bash
-LATEST=$(curl -s https://api.github.com/repos/prometheus-operator/prometheus-operator/releases/latest | jq -cr .tag_name)
-curl -sL https://github.com/prometheus-operator/prometheus-operator/releases/download/${LATEST}/bundle.yaml > ./bundle.yaml
+LATEST=$(curl -s "https://api.github.com/repos/prometheus-operator/prometheus-operator/releases/latest" | jq -cr .tag_name)
+curl -sL "https://github.com/prometheus-operator/prometheus-operator/releases/download/${LATEST}/bundle.yaml" > ./bundle.yaml
 
 sed -i 's/namespace: default/namespace: last9-monitoring/g' bundle.yaml
-kubectl apply -f ./bundle.yaml
+
+kubectl create -f ./namespace.yaml -f ./bundle.yaml
 ```
 
 The operator might take a few minutes to become fully operational. Monitor its status using this command:
@@ -68,3 +71,11 @@ To verify that the service monitors are up and running, run:
 ```shell
 kubectl get servicemonitor --kubeconfig=$KUBECONFIG -n last9-monitoring
 ```
+
+## [Quick Installation Tutorial](https://www.loom.com/share/b30484323edd499e843ecb5df5e9eb06)
+
+<div>
+    <a href="https://www.loom.com/share/b30484323edd499e843ecb5df5e9eb06">
+      <img style="max-width:300px;" src="https://cdn.loom.com/sessions/thumbnails/b30484323edd499e843ecb5df5e9eb06-with-play.gif">
+    </a>
+</div>
