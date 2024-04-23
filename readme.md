@@ -17,10 +17,12 @@ Execute the following commands to download the CRDs and set up the operator in t
 LATEST=$(curl -s "https://api.github.com/repos/prometheus-operator/prometheus-operator/releases/latest" | jq -cr .tag_name)
 curl -sL "https://github.com/prometheus-operator/prometheus-operator/releases/download/${LATEST}/bundle.yaml" > ./bundle.yaml
 
-sed -i 's/namespace: default/namespace: last9-monitoring/g' bundle.yaml
+sed -i '' 's/namespace: default/namespace: last9-monitoring/g' bundle.yaml
 
 kubectl create -f ./namespace.yaml -f ./bundle.yaml
 ```
+
+Note: If CRDs are already present then it wont override it and instead it will state that the CRDs exists.
 
 The operator might take a few minutes to become fully operational. Monitor its status using this command:
 
