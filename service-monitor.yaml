@@ -6,6 +6,7 @@ metadata:
   name: prometheus-agent
   labels:
     managed-by: last9
+  namespace: last9-monitoring
 spec:
   selector:
     matchLabels:
@@ -21,6 +22,7 @@ metadata:
   labels:
     app.kubernetes.io/name: kube-state-metrics
     managed-by: last9
+  namespace: last9-monitoring
 spec:
   namespaceSelector:
     any: true
@@ -48,6 +50,7 @@ metadata:
   labels:
     k8s-app: kubelet
     managed-by: last9
+  namespace: last9-monitoring
 spec:
   jobLabel: k8s-app
   endpoints:
@@ -71,3 +74,57 @@ spec:
   namespaceSelector:
     matchNames:
       - kube-system
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: node-exporter
+  labels:
+    managed-by: last9
+  namespace: last9-monitoring
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: prometheus-node-exporter
+  endpoints:
+    - interval: 30s
+    - port: http-metrics
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: node-exporter
+  labels:
+    managed-by: last9
+  namespace: last9-monitoring
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: prometheus-node-exporter
+  namespaceSelector:
+    matchNames:
+      - monitoring
+  endpoints:
+    - interval: 30s
+    - port: http-metrics
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: metrics-server
+  labels:
+    k8s-app: metrics-server
+  namespace: last9-monitoring
+spec:
+  selector:
+    matchLabels:
+      k8s-app: metrics-server
+  namespaceSelector:
+    matchNames:
+      - kube-system
+  endpoints:
+    - port: https
+      interval: 30s
+      scheme: https
+      tlsConfig:
+        insecureSkipVerify: true
