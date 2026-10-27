@@ -86,13 +86,13 @@ spec:
     matchLabels:
       managed-by: last9
   remoteWrite:
-    - url: <levitate_remote_wrote_url>
+    - url: <last9_remote_write_url>
       basicAuth:
         username:
-          name: levitate-secrets
+          name: last9-secrets
           key: username
         password:
-          name: levitate-secrets
+          name: last9-secrets
           key: password
   externalLabels:
     via_cluster: 'minikube' # Change this as per what is appropriate
